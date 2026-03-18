@@ -21,6 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout');
+      localStorage.removeItem('token');
       router.push('/login');
     } catch (error) {
       console.error('Logout failed', error);
