@@ -14,6 +14,8 @@ const generateToken = (res, userId) => {
     sameSite: 'none',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
+  
+  return token;
 };
 
 const registerUser = async (req, res, next) => {
@@ -39,7 +41,7 @@ const registerUser = async (req, res, next) => {
       },
     });
 
-    generateToken(res, user.id);
+    const token = generateToken(res, user.id);
 
     res.status(201).json({
       success: true,
@@ -48,6 +50,7 @@ const registerUser = async (req, res, next) => {
         email: user.email,
         name: user.name,
       },
+      token
     });
   } catch (error) {
     next(error);
@@ -61,7 +64,7 @@ const loginUser = async (req, res, next) => {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (user && (await bcrypt.compare(password, user.passwordHash))) {
-      generateToken(res, user.id);
+      const token = generateToken(res, user.id);
 
       res.status(200).json({
         success: true,
@@ -70,6 +73,7 @@ const loginUser = async (req, res, next) => {
           email: user.email,
           name: user.name,
         },
+        token
       });
     } else {
       const error = new Error('Invalid email or password');
