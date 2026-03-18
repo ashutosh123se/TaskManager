@@ -13,7 +13,13 @@ const app = express();
 // Middlewares
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (origin.includes('vercel.app') || origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS blocked: ' + origin), false);
+  },
   credentials: true,
 }));
 app.use(express.json());
